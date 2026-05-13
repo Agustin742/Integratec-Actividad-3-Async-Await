@@ -7,6 +7,8 @@ const $waitMessage = document.querySelector("#waitMessage");
 const $searchButton = document.querySelector("#searchButton");
 const $getPostsBtn = document.querySelector("#getPostsBtn");
 const $postsList = document.querySelector("#postsList");
+const $getUsersAndPostsBtn = document.querySelector("#getUsersAndPostsBtn");
+const $usersAndPostsList = document.querySelector("#usersAndPostsList");
 
 // Devuelve Usuarios [{}, {}]
 async function getUsers() {
@@ -19,7 +21,17 @@ async function getUsers() {
     }
 }
 
-async function getPosts() {
+async function getPostsById(userId) {
+    try {
+        const response = await fetch(`${URL}${POST_ENDPOINT}?userId=${userId}`);
+        const data = await response.json();
+        return data.slice(0, 5);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function getFivePosts() {
     try {
         const response = await fetch(`${URL}${POST_ENDPOINT}`);
         const data = await response.json();
@@ -76,6 +88,27 @@ function generatePostHTML({ title }) {
     return $listItem;
 }
 
+function generateUserAndPostHTML({ name, email, titles }) {
+    const $listItem = document.createElement("li");
+    const $userHeading2 = document.createElement("h2");
+    const $userSpan = document.createElement("span");
+    
+
+    $userSpan.innerText = email;
+    $userHeading2.innerText = name;
+
+    $listItem.appendChild($userHeading2);
+    $listItem.appendChild($userSpan);
+
+    titles.forEach((title) => {
+        const $postHeading4 = document.createElement("h4");
+        $postHeading4.innerText = title;
+        $listItem.appendChild($postHeading4);
+    });
+    
+    return $listItem;
+}
+
 // Function de filtro de usuarios
 function filterUsers(query, users) {
     return users.filter((user) => user.name.includes(query));
@@ -95,7 +128,7 @@ async function renderUsers(event) {
 }
 
 async function renderPosts(event) {
-    const posts = await getPosts();
+    const posts = await getFivePosts();
     $postsList.innerHTML = "";
 
     posts.forEach((post) => {
@@ -104,7 +137,20 @@ async function renderPosts(event) {
         $postsList.appendChild($postListElement);
     });
 }
-    
+
+async function renderUsersAndPosts(event) {
+    const users = await getUsers();
+    $usersAndPostsList.innerHTML = ""; 
+    for (const user of users) {
+        const posts = await getPostsById(user.id);
+        const titles = posts.map((post) => post.title);
+        const $userAndPostListElement = generateUserAndPostHTML({ name: user.name, email: user.email, titles });
+        $usersAndPostsList.appendChild($userAndPostListElement);
+    }
+}
+
 $searchButton.addEventListener("click", renderUsers);
 
 $getPostsBtn.addEventListener("click", renderPosts);
+
+$getUsersAndPostsBtn.addEventListener("click", renderUsersAndPosts);
