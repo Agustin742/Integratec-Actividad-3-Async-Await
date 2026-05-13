@@ -25,6 +25,19 @@
             <ul id="usersAndPostsList"></ul>
         </section>
 
+        <section>
+            <h2>Create Post</h2>
+            <form id="createPostForm">
+                <input type="text" id="postTitle" placeholder="Post Title" name="title" required>
+                <textarea id="postBody" placeholder="Post Body" name="body" required></textarea>
+                <button type="submit">Create Post</button>
+            </form>
+            <aside>
+                <h3>Created Post:</h3>
+                <p id="createdPostTitle"></p>
+                <p id="createdPostBody"></p>
+            </aside>
+        </section>
 
         <script src="app.js"></script>
     </body>

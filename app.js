@@ -9,6 +9,9 @@ const $getPostsBtn = document.querySelector("#getPostsBtn");
 const $postsList = document.querySelector("#postsList");
 const $getUsersAndPostsBtn = document.querySelector("#getUsersAndPostsBtn");
 const $usersAndPostsList = document.querySelector("#usersAndPostsList");
+const $createPostForm = document.querySelector("#createPostForm");
+const $createdPostTitle = document.querySelector("#createdPostTitle");
+const $createdPostBody = document.querySelector("#createdPostBody");
 
 // Devuelve Usuarios [{}, {}]
 async function getUsers() {
@@ -60,6 +63,22 @@ async function getUsersWithTime(time) {
     $waitMessage.textContent = "";
 
     return users;
+}
+
+async function createPost(postData) {
+    try {
+        const response = await fetch(`${URL}${POST_ENDPOINT}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(postData)
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 // Devuelve un List Item con el email y el nombre
@@ -154,3 +173,22 @@ $searchButton.addEventListener("click", renderUsers);
 $getPostsBtn.addEventListener("click", renderPosts);
 
 $getUsersAndPostsBtn.addEventListener("click", renderUsersAndPosts);
+
+$createPostForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData($createPostForm);
+    const postData = {
+        title: formData.get("title"),
+        body: formData.get("body")
+    };
+
+    const createdPost = await createPost(postData);
+
+    if (!createdPost) {
+        console.error("Failed to create post");
+        return;
+    }
+
+    $createdPostTitle.textContent = `Created post with title: ${createdPost.title}`;
+    $createdPostBody.textContent = `Created post with body: ${createdPost.body}`;
+});
