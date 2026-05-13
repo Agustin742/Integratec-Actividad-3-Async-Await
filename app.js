@@ -1,8 +1,33 @@
-const URL = "https://jsonplaceholder.typicode.com/users";
+const URL = "https://jsonplaceholder.typicode.com/";
+const USERS_ENDPOINT = "users";
+const POST_ENDPOINT = "posts";
 const $userList = document.querySelector("#userList");
 const $timeInput = document.querySelector("#timeInput");
 const $waitMessage = document.querySelector("#waitMessage");
 const $searchButton = document.querySelector("#searchButton");
+const $getPostsBtn = document.querySelector("#getPostsBtn");
+const $postsList = document.querySelector("#postsList");
+
+// Devuelve Usuarios [{}, {}]
+async function getUsers() {
+    try {
+        const response = await fetch(`${URL}${USERS_ENDPOINT}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function getPosts() {
+    try {
+        const response = await fetch(`${URL}${POST_ENDPOINT}`);
+        const data = await response.json();
+        return data.slice(0, 5);;
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 async function getUsersWithTime(time) {
     const parsedTime = Number(time);
@@ -25,7 +50,6 @@ async function getUsersWithTime(time) {
     return users;
 }
 
-
 // Devuelve un List Item con el email y el nombre
 function generateUserHTML({ email, name }) {
     const $listItem = document.createElement("li");
@@ -41,15 +65,15 @@ function generateUserHTML({ email, name }) {
     return $listItem;
 }
 
-// Devuelve Usuarios [{}, {}]
-async function getUsers() {
-    try {
-        const response = await fetch(URL);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(error);
-    }
+function generatePostHTML({ title }) {
+    const $listItem = document.createElement("li");
+    const $postHeading2 = document.createElement("h3");
+
+    $postHeading2.innerText = title;
+
+    $listItem.appendChild($postHeading2);
+
+    return $listItem;
 }
 
 // Function de filtro de usuarios
@@ -70,5 +94,17 @@ async function renderUsers(event) {
     });
 }
 
+async function renderPosts(event) {
+    const posts = await getPosts();
+    $postsList.innerHTML = "";
 
+    posts.forEach((post) => {
+        const $postListElement = generatePostHTML({ title: post.title });
+
+        $postsList.appendChild($postListElement);
+    });
+}
+    
 $searchButton.addEventListener("click", renderUsers);
+
+$getPostsBtn.addEventListener("click", renderPosts);
